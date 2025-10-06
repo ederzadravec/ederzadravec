@@ -1,0 +1,58 @@
+name: GitHub Metrics
+
+on:
+  schedule:
+    - cron: "25 0 * * *"   # roda diariamente
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Generate metrics
+        uses: lowlighter/metrics@latest
+        with:
+          # ====== Auth ======
+          token: ${{ secrets.METRICS_TOKEN }} # PAT classic (read:user; +repo se quiser privadas)
+
+          # ====== Base ======
+          user: ederzadravec
+          template: classic
+          base: header, community, repositories, metadata
+          config_timezone: America/Sao_Paulo
+          config_twemoji: yes
+          filename: github-metrics.svg
+          committer_branch: output
+          committer_message: "chore(metrics): update"
+
+          # ====== Plugins bonitos e úteis ======
+
+          # Conquistas
+          # plugin_achievements: yes
+          # plugin_achievements_only: >-
+          #   polyglot, stargazer, sponsor, deployer, member, maintainer, developer,
+          #   scripter, packager, explorer, infographile, manager
+
+          # Tópicos (tags) dos seus repos
+          plugin_topics: yes
+          plugin_topics_mode: icons
+          plugin_topics_sort: stars
+
+
+          plugin_habits: yes
+          plugin_habits_facts: yes
+          plugin_habits_charts: no
+
+          plugin_languages: yes
+          plugin_languages_sections: most-used
+          plugin_languages_details: bytes-size, percentage
+          plugin_languages_limit: 8
+          plugin_languages_ignored: html, css
+          plugin_languages_indepth: no
+
+          # plugin_leetcode: yes
+          # plugin_leetcode_sections: solved, skills
+
+          # ====== Desabilitados (para remover as seções indesejadas) ======

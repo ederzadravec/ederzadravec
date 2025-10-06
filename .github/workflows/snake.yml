@@ -1,0 +1,45 @@
+name: Generate snake
+
+on:
+  # Atualiza diariamente às 23:45 UTC (ajuste se quiser)
+  schedule:
+    - cron: "45 23 * * *"
+  # Permite rodar manualmente
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Snake SVG
+        uses: Platane/snk/svg-only@v3
+        with:
+          github_user_name: ederzadravec
+          github_token: ${{ secrets.METRICS_TOKEN }}   # PAT classic com read:user (+ repo se quiser privadas)
+          outputs: |
+            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+
+      - name: Validate artifact size
+        run: |
+          test -s dist/github-contribution-grid-snake.svg
+          size=$(wc -c < dist/github-contribution-grid-snake.svg)
+          echo "SVG size: $size bytes"
+          if [ "$size" -lt 2000 ]; then
+            echo "Artifact too small (likely empty)."
+            exit 1
+          fi
+
+      - name: Push to output branch
+        uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
